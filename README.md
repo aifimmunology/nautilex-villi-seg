@@ -3,6 +3,8 @@
 
 > **Data reference:** Zhang et al., *Nature*, 2025 — ["Neuro-epithelial circuits promote sensory convergence and intestinal immunity"](https://www.nature.com/articles/s41586-025-09921-z)
 
+![Challenge overview](images/challenge_overview.png)
+
 ## Challenge Overview
 
 The small intestinal villus is a finger-like projection of the intestinal mucosa with a well-defined crypt-villus axis. Segmenting individual villi from spatial transcriptomics data would enable powerful analyses of villus-level heterogeneity, cell composition, and spatial gene expression gradients. This challenge asks participants to develop a method to automatically segment individual villi from 10x Xenium data.
@@ -50,7 +52,9 @@ output-XETG00195__0050316__TIS09474-001-001__20250129__221130/
 ├── cell_boundaries.parquet        # Polygon boundaries for each segmented cell
 ├── nucleus_boundaries.parquet     # Polygon boundaries for each segmented nucleus
 ├── cells.parquet                  # Per-cell metadata (location, area, etc.)
+├── cells.csv.gz                   # Per-cell metadata (CSV format)
 ├── cells.zarr.zip                 # Cell-by-gene expression matrix (Zarr format)
+├── cell_feature_matrix.h5         # Cell-by-gene expression matrix (HDF5 format)
 ├── cell_feature_matrix/           # Cell-by-gene expression matrix (MEX format)
 │   ├── barcodes.tsv.gz
 │   ├── features.tsv.gz
@@ -64,7 +68,8 @@ output-XETG00195__0050316__TIS09474-001-001__20250129__221130/
 
 Key files for this challenge:
 - **`transcripts.parquet`** — x/y coordinates of every detected transcript; useful for spatial density-based villus segmentation
-- **`cell_boundaries.parquet`** / **`cells.parquet`** — segmented cell locations and shapes
+- **`cell_boundaries.parquet`** / **`cells.parquet`** / **`cells.csv.gz`** — segmented cell locations, shapes, and per-cell metadata
+- **`cell_feature_matrix.h5`** — cell-by-gene expression matrix in HDF5 format; easy to load with `scanpy.read_10x_h5()`
 - **`morphology.ome.tif`** — DAPI image; villi are visible as tissue morphology
 
 ---
