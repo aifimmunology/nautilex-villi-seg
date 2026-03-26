@@ -3,7 +3,7 @@
 
 > **Data reference:** Zhang et al., *Nature*, 2025 — ["Neuro-epithelial circuits promote sensory convergence and intestinal immunity"](https://www.nature.com/articles/s41586-025-09921-z)
 
-![Challenge overview](images/challenge_overview.png)
+![Challenge overview](repo_image.jpg)
 
 ## Challenge Overview
 
