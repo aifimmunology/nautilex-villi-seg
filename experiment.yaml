@@ -1,0 +1,25 @@
+version: v2
+description: "Nautilex villi segmentation — 7 methods (classical + DL)"
+
+tasks:
+  - name: segment
+    image:
+      beaker: ashwin-samudre/villi-seg-full
+    context:
+      cluster: ai1/octo-nautilex-aws-h100
+      priority: normal
+    resources:
+      gpuCount: 1
+    envVars:
+      - name: DATA_PATH
+        value: /data
+      - name: OUTPUT_DIR
+        value: /output
+      - name: METHOD
+        value: all
+    datasets:
+      - mountPath: /data
+        source:
+          beaker: ashwin-samudre/xenium-TIS09474-001-001
+    result:
+      path: /output
