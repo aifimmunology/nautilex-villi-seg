@@ -1,0 +1,51 @@
+# ── base: PyTorch + CUDA for GPU methods ─────────────────────────────────────
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-runtime
+
+WORKDIR /app
+
+# System deps for shapely, scipy, tifffile, building PyG extensions
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        gcc g++ \
+        libgeos-dev \
+        libffi-dev \
+        git \
+    && rm -rf /var/lib/apt/lists/*
+
+# ── Python dependencies (layered for cache efficiency) ───────────────────────
+# Core scientific stack first (rarely changes)
+COPY requirements.txt .
+RUN pip install --no-cache-dir \
+        numpy pandas pyarrow scipy scikit-image scikit-learn \
+        tifffile imagecodecs shapely matplotlib h5py anndata scanpy
+
+# PyTorch Geometric (needs torch already installed)
+RUN pip install --no-cache-dir \
+        torch-scatter torch-sparse -f https://data.pyg.org/whl/torch-2.1.0+cu121.html && \
+    pip install --no-cache-dir torch-geometric
+
+# Segmentation models + SAM2
+# Leiden clustering deps (needed by scanpy's sc.tl.leiden)
+RUN pip install --no-cache-dir igraph leidenalg
+
+RUN pip install --no-cache-dir segmentation-models-pytorch>=0.3.3 albumentations
+RUN pip install --no-cache-dir "sam-2 @ git+https://github.com/facebookresearch/sam2.git"
+
+# ── Download SAM2 checkpoint ─────────────────────────────────────────────────
+RUN mkdir -p /models && \
+    python -c "from sam2.build_sam import build_sam2; print('SAM2 package OK')" && \
+    pip install --no-cache-dir huggingface_hub && \
+    python -c "from huggingface_hub import hf_hub_download; \
+               hf_hub_download('facebook/sam2.1-hiera-large', 'sam2.1_hiera_large.pt', local_dir='/models')" \
+    || echo "SAM2 checkpoint download failed — will skip SAM2 method at runtime"
+
+# ── Copy application code ────────────────────────────────────────────────────
+COPY utils/ utils/
+COPY methods/ methods/
+COPY segment.py .
+
+# Result path
+RUN mkdir -p /output
+
+ENV SAM2_CHECKPOINT=/models/sam2.1_hiera_large.pt
+
+ENTRYPOINT ["python", "segment.py"]
